@@ -1,0 +1,1 @@
+pip-compile --annotation-style=line && pip-sync
