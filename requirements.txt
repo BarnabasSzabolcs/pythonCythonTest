@@ -10,3 +10,5 @@ invoke==1.6.0
     # via -r requirements.in
 pybind11==2.8.0
     # via -r requirements.in
+tqdm==4.62.3
+    # via -r requirements.in

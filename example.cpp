@@ -6,6 +6,8 @@
 
 namespace py = pybind11;
 
+// This line makes pybind11 work *slower* but it enables to modify python vectors from c++.
+// (Usually it is better to make a new vector in c++ and return it to python)
 PYBIND11_MAKE_OPAQUE(std::vector<std::string>);
 
 int add(int i, int j) {

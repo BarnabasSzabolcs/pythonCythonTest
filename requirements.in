@@ -1,3 +1,4 @@
 Cython   # to link against C++
 invoke   # to compile and link C++
 pybind11  # to compile C++
+tqdm  # progress indicator

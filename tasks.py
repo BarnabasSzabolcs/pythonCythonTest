@@ -4,6 +4,7 @@ usage:  invoke build-pybind11
 import sys
 
 import invoke
+from tqdm import tqdm
 from invoke import task
 
 
@@ -16,7 +17,8 @@ def build_pybind11(c):
     else:
         raise NotImplementedError()
 
-    for module in ['example', 'demo_package/prio_lexer']:
+    print("\n*** Compile pybind11 related .cpp files ***\n")
+    for module in tqdm(['example', 'demo_package/prio_lexer']):
         invoke.run(
             f"c++ -O3 -Wall -shared -std=c++17 "
             f"{extra_flags} "
@@ -46,22 +48,27 @@ def build_cython(c):
 
     print("\n*** Run cython on the pyx file to create a .cpp file ***\n")
     for wrapper in ['cython_wrapper']:
+        # --cplus tells that we want c++ code instead of c
+        # -3 tells that we want to work with python3
+        # it's not really worth the hustle to put the generated c++ file to a separate build directory
+        # so we just assign a different c++ extension to generated cpp files so they can be easily cleaned later.
         invoke.run(f"cython --cplus -3 {wrapper}.pyx -o {wrapper}.{generated_cpp_extension}")
 
     print("\n*** Link the code and the cython wrapper\n")
-    for wrapper, code in [('cython_wrapper', 'cppmult')]:
+    for wrapper, codes in [('cython_wrapper', ['cppmult'])]:
+        code_libs = ' '.join(f'-l{lib}' for lib in codes)
         invoke.run(
             f"c++ -O3 -Wall -shared -std=c++17 "
             f"{extra_flags} "
             f"`python3 -m pybind11 --includes` " 
             f"{wrapper}.{generated_cpp_extension} "
             f"-o {wrapper}`python3-config --extension-suffix` "
-            f"-L. -l{code}"
+            f"-L. {code_libs}"
         )
 
 
 @task(build_pybind11, build_cython)
-def all(c):
+def build_all(c):
     """
     builds everything
     """
